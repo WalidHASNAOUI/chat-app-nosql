@@ -17,10 +17,6 @@ Créer une application de **tchat web** :
 
 ---
 
-Parfait ! Voici une **structure de fichiers claire et modulaire** pour ton projet de tchat avec **MongoDB**, **Redis**, **FastAPI ou Flask** pour l'API backend, et une **interface web simple**. Je vais te proposer une version avec `FastAPI` (plus moderne), mais tu peux facilement adapter si tu préfères `Flask`.
-
----
-
 ### 📁 Structure de projet
 
 ```bash
