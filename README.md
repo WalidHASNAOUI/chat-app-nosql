@@ -1,107 +1,152 @@
 ## 📝 Projet INFO834 – Application de Tchat (FastAPI + MongoDB + Redis)
 
-### 📌 Description
-Application de tchat temps réel entre utilisateurs avec gestion :
-- des messages via **MongoDB** (avec ReplicaSet),
-- des connexions via **Redis**,
-- d'une **API REST** avec **FastAPI**,
-- d'une interface cliente Python avec **sockets**.
+Merci pour le fichier ! Voici un **plan détaillé de projet** pour ton mini-projet INFO834 en BD NoSQL avec MongoDB, Redis et interface web, réparti pour **3 personnes** :
 
 ---
 
-### 🧱 Technologies
-- **FastAPI** (API backend)
-- **MongoDB** (stockage des messages)
-- **PyMongo** (driver MongoDB)
-- **Redis** (suivi des connexions)
-- **redis-py** (client Python pour Redis)
-- **Socket** (interface client/serveur)
-- **Docker** (pour MongoDB ReplicaSet)
+### 🔧 **Objectif général**
+Créer une application de **tchat web** :
+- Backend en Python avec **MongoDB** (messages/conversations) et **Redis** (utilisateurs connectés).
+- Interface web pour envoyer/lire des messages.
+- Implémentation d’un **ReplicaSet MongoDB** pour tolérance aux pannes.
 
 ---
 
-### 📁 Structure du projet
-```bash
+### 👥 Répartition du travail (proposition initiale)
+| Membre | Rôle principal | Contribution approximative |
+|--------|----------------|-----------------------------|
+| Personne A | Backend Python (API REST + MongoDB/Redis) | 
+| Personne B | Frontend Web (HTML/CSS/JS + intégration API) | 
+| Personne C | Déploiement ReplicaSet + tests + rapport final | 
+
+---
+
+### Structure de projet
 chat-app/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py               # Point d'entrée FastAPI
+│   │   ├── models/               # Modèles MongoDB (schemas)
+│   │   │   ├── __init__.py
+│   │   │   └── message.py
+│   │   │   └── user.py
+│   │   ├── routes/               # Endpoints API
+│   │   │   ├── __init__.py
+│   │   │   ├── chat.py
+│   │   │   └── user.py
+│   │   ├── services/             # Logique métier
+│   │   │   ├── __init__.py
+│   │   │   ├── redis_service.py
+│   │   │   └── mongo_service.py
+│   │   └── config.py             # Connexion MongoDB/Redis
 │
-├── backend/                    # FastAPI backend
-│   ├── main.py                 # Entrée principale de l’API
-│   ├── db/                     # Connexion MongoDB et Redis
-│   │   ├── mongodb.py
-│   │   └── redisdb.py
-│   ├── models/                 # Modèles Pydantic
-│   │   ├── user.py
-│   │   └── message.py
-│   ├── routes/                 # Endpoints FastAPI
-│   │   ├── users.py
-│   │   └── messages.py
-│   └── utils/                  # Fonctions utiles (requêtes avancées)
-│       └── stats.py
+│   ├── requirements.txt          # Dépendances Python
+│   └── tests/
+│       ├── test_chat.py
+│       └── test_user.py
 │
-├── client/                     # Interface utilisateur via socket
-│   └── client.py
+├── frontend/
+│   ├── static/                   # Fichiers CSS/JS
+│   │   ├── style.css
+│   │   └── script.js
+│   ├── templates/                # HTML (via Jinja2 si Flask ou simple HTML)
+│   │   ├── index.html
+│   │   └── chat.html
+│   └── README.md
 │
-├── scripts/                    # Scripts pour init replica, setup etc.
-│   ├── init_mongo_replica.sh
-│   └── populate_db.py
+├── docker/
+│   ├── mongo/
+│   │   └── mongo.conf            # Config ReplicaSet
+│   └── docker-compose.yml       # Pour MongoDB + Redis + backend
 │
-├── tests/                      # Tests unitaires
-│   ├── test_users.py
-│   └── test_messages.py
-│
-├── Docker/                     # Docker config pour MongoDB ReplicaSet
-│   └── docker-compose.yml
-│
+├── .env                          # Variables d’environnement (host, ports, etc.)
 ├── README.md
-└── rapport.pdf                 # Rapport final avec captures et % contribution
-```
+└── rapport/
+    └── MiniProjet_INFO834.pdf   # Rapport final
 
 ---
 
-### ✅ Fonctionnalités à implémenter
+### 📅 Étapes du projet
 
-#### 🔹 Backend FastAPI (MongoDB)
-- [ ] Créer/obtenir un utilisateur
-- [ ] Envoyer un message à un autre utilisateur
-- [ ] Récupérer historique des messages
-- [ ] Obtenir les conversations entre deux utilisateurs
-- [ ] Requêtes avancées :
-  - Utilisateur le plus sollicité
-  - Nombre de messages envoyés par utilisateur
-
-#### 🔹 Redis (Connexions)
-- [ ] Marquer un utilisateur comme connecté/déconnecté
-- [ ] Stocker l’historique des connexions
-- [ ] Récupérer les utilisateurs connectés en temps réel
-
-#### 🔹 Interface Client
-- [ ] Interface Python CLI en socket
-- [ ] Commandes utilisateur :
-  - `/connect`, `/send`, `/list`, `/history`, `/quit`
+#### **Étape 1 – Conception & Organisation**
+**(Ensemble, 1 à 2 jours)**
+- Choix de l’architecture (client-serveur REST).
+- Répartition claire des tâches.
+- Choix de la stack web : Flask (backend) + HTML/CSS/JS ou framework léger comme Bootstrap pour l’UI.
+- Création d’un repo Git partagé.
 
 ---
 
-### 🧠 Répartition des tâches (proposition)
-
-| Nom       | Tâches principales                          | Pourcentage |
-|-----------|----------------------------------------------|-------------|
-| Personne A | Backend FastAPI + modèles MongoDB           | 35%         |
-| Personne B | Redis + statistiques/messages avancés       | 35%         |
-| Personne C | Interface socket + tests + rapport final    | 30%         |
-
----
-
-### 🧪 Tests
-- [ ] API testée avec `pytest`
-- [ ] Tests unitaires pour les routes MongoDB et Redis
-- [ ] Démo live des 3 utilisateurs (minimum)
+#### **Étape 2 – Mise en place des bases de données**
+**Responsable : Personne A & C**
+- 📦 **MongoDB** :
+  - Création des collections : `users`, `messages`, `conversations`.
+  - Scripts de peuplement/test.
+- ⚡ **Redis** :
+  - Gestion des connexions utilisateur (ex : `SET user_id timestamp`, `EXPIRE`, etc.).
 
 ---
 
-### 📸 Rapport final
-- [ ] Captures d’écran des tests (MongoDB, Redis, API)
-- [ ] Liste des routes API
-- [ ] Pourcentages contribution
-- [ ] Liens vers GitHub du projet
+#### **Étape 3 – Développement backend Python (API REST)**
+**Responsable : Personne A**
+- Connexion MongoDB avec **PyMongo**, Redis avec **redis-py**.
+- Endpoints :
+  - `POST /login` → Enregistrer l’utilisateur dans Redis.
+  - `GET /users/online` → Afficher utilisateurs connectés.
+  - `POST /message` → Envoyer un message (sauvegarde MongoDB).
+  - `GET /conversation?user1=X&user2=Y` → Afficher historique.
+  - `GET /stats/most_active_user` → Statistiques diverses.
 
 ---
+
+#### **Étape 4 – Interface web**
+**Responsable : Personne B**
+- Page d’accueil + formulaire de connexion.
+- Affichage en temps réel (ou via rafraîchissement) des messages.
+- Visualisation des utilisateurs connectés.
+- Intégration avec API REST du backend.
+
+---
+
+#### **Étape 5 – Mise en place ReplicaSet MongoDB**
+**Responsable : Personne C**
+- Déploiement local avec 3 instances MongoDB (peut être simulé en local via ports différents).
+- Tests de tolérance aux pannes (arrêt d’un nœud, vérification du failover).
+- Screenshots et explications pour le rapport.
+
+---
+
+#### **Étape 6 – Tests unitaires et scénarios**
+**Responsable : Personne A & C**
+- Tests pour chaque endpoint de l’API.
+- Cas d’usage :
+  - Connexion multiple.
+  - Conversation sauvegardée.
+  - Crash d’un nœud MongoDB.
+- Logs / messages d’erreur clairs.
+
+---
+
+#### **Étape 7 – Rapport final**
+**Responsable : Tous**
+- Structure du rapport :
+  1. Introduction & Contexte
+  2. Architecture générale
+  3. Description technique des fonctionnalités
+  4. Code & screenshots des tests
+  5. Statistiques de contribution
+  6. Liens GitHub
+- Format : PDF
+
+---
+
+### 📌 Fonctionnalités à ne pas oublier
+- [x] Affichage utilisateurs connectés (Redis)
+- [x] Sauvegarde messages (MongoDB)
+- [x] Conversation entre deux utilisateurs
+- [x] Statistiques utilisateurs
+- [x] Résilience via ReplicaSet
+
+---
+
