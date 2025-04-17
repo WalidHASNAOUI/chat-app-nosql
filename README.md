@@ -165,7 +165,7 @@ chat-app/
 | 4    | Page de chat dynamique + appels fetch API (JS) | Walid | API login/send disponibles |
 | 5    | Route `/chat/conversation`, `/users/online` | Ayoub | Connexion Redis + Mongo |
 | 5    | Affichage utilisateurs connectés côté frontend | Walid | Route `/users/online` |
-| 6    | Route `/stats/most_active_user` | A | Messages en base |
+| 6    | Route `/stats/most_active_user` | Ayoub | Messages en base |
 | 6    | Tests ReplicaSet (simulateur de panne, failover) | Ibtissam | ReplicaSet fonctionnel |
 | 7    | Tests unitaires endpoints backend (`tests/`) | Ibtissam | Routes backend fonctionnelles |
 | 7    | Tests d’intégration UI + API | Ayoub + Walid | Intégration backend/frontend |
@@ -178,7 +178,7 @@ chat-app/
 |------|-------|-------------|------------|
 | 8    | Tests complets : vraie conversation 2-3 users | Tous | API et UI intégrées |
 | 9    | Screenshots fonctionnalités (API, UI, stats, ReplicaSet) | Tous | Projet fonctionnel |
-| 10   | Rédaction du rapport PDF | C + Tous | Captures et tests faits |
+| 10   | Rédaction du rapport PDF | Tous | Captures et tests faits |
 | 11   | Ajout des contributions (%) dans le rapport | Tous | Rapport presque terminé |
 | 12   | Relecture, finalisation, push GitHub | Tous | Rapport complet |
 
