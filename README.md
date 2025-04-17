@@ -139,4 +139,59 @@ chat-app/
 
 ---
 
+## 🗓️ Calendrier du projet
 
+### ✅ Semaine 1 : Préparation & Fondations
+
+| Jour | Tâche | Responsable | Dépendance |
+|------|-------|-------------|------------|
+| 1    | Réunion de lancement + répartition des rôles | Tous | Aucune |
+| 1    | Création repo GitHub, arborescence du projet | Tous | Aucune |
+| 2    | Setup FastAPI + fichiers de base (`main.py`, `config.py`) | Ayoub | Aucune |
+| 2    | Maquettes pages web (HTML - login, chat) | Walid | Aucune |
+| 2    | Mise en place de Docker pour MongoDB/Redis | Ibtissam | Aucune |
+| 3    | Connexion MongoDB + Redis dans FastAPI (`config.py`) | Ayoub | Docker Mongo/Redis |
+| 3    | Création des modèles MongoDB (`User`, `Message`) | Ayoub | Aucune |
+| 3    | Déploiement local d’un ReplicaSet MongoDB | Ibtissam | Docker MongoDB |
+| 3    | Préparation structure frontend (static, templates) | Walid | Maquette HTML |
+
+---
+
+### ⚙️ Semaine 2 : Développement parallèle
+
+| Jour | Tâche | Responsable | Dépendance |
+|------|-------|-------------|------------|
+| 4    | Implémentation routes API : `/login`, `/logout`, `/chat/send` | Ayoub | Config OK + modèles prêts |
+| 4    | Page de chat dynamique + appels fetch API (JS) | Walid | API login/send disponibles |
+| 5    | Route `/chat/conversation`, `/users/online` | Ayoub | Connexion Redis + Mongo |
+| 5    | Affichage utilisateurs connectés côté frontend | Walid | Route `/users/online` |
+| 6    | Route `/stats/most_active_user` | A | Messages en base |
+| 6    | Tests ReplicaSet (simulateur de panne, failover) | Ibtissam | ReplicaSet fonctionnel |
+| 7    | Tests unitaires endpoints backend (`tests/`) | Ibtissam | Routes backend fonctionnelles |
+| 7    | Tests d’intégration UI + API | Ayoub + Walid | Intégration backend/frontend |
+
+---
+
+### 📝 Semaine 3 : Finalisation & Rapport
+
+| Jour | Tâche | Responsable | Dépendance |
+|------|-------|-------------|------------|
+| 8    | Tests complets : vraie conversation 2-3 users | Tous | API et UI intégrées |
+| 9    | Screenshots fonctionnalités (API, UI, stats, ReplicaSet) | Tous | Projet fonctionnel |
+| 10   | Rédaction du rapport PDF | C + Tous | Captures et tests faits |
+| 11   | Ajout des contributions (%) dans le rapport | Tous | Rapport presque terminé |
+| 12   | Relecture, finalisation, push GitHub | Tous | Rapport complet |
+
+---
+
+## 🔁 Dépendances techniques
+
+| Étape | Dépend de |
+|-------|-----------|
+| Connexion MongoDB/Redis | Docker MongoDB/Redis actif |
+| Routes backend | Modèles + config backend opérationnelle |
+| Intégration frontend | API REST testée et disponible |
+| Tests ReplicaSet | Docker + config MongoDB ReplicaSet prête |
+| Rapport | Projet terminé + captures prises |
+
+---
