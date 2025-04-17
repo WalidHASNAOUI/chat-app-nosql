@@ -11,9 +11,9 @@ Créer une application de **tchat web** :
 ### 👥 Répartition du travail (proposition initiale)
 | Membre | Rôle principal | 
 |--------|----------------|
-| Personne A | Backend Python (API REST + MongoDB/Redis) | 
-| Personne B | Frontend Web (HTML/CSS/JS + intégration API) | 
-| Personne C | Déploiement ReplicaSet + tests + rapport final | 
+| Ayoub | Backend Python (API REST + MongoDB/Redis) | 
+| Walid | Frontend Web (HTML/CSS/JS + intégration API) | 
+| Ibtissam | Déploiement ReplicaSet + tests + rapport final | 
 
 ---
 
@@ -66,24 +66,9 @@ chat-app/
 
 ---
 
-
----
-
-### 🚀 Prochaine étape
-
-Souhaites-tu que je t’aide à :
-- générer un `docker-compose.yml` pour tout lancer en local ?
-- te faire un squelette de `main.py` avec les routes de base ?
-- créer un design simple pour l’interface web ?
-
-Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape 😉
-
----
-
 ### 📅 Étapes du projet
 
 #### **Étape 1 – Conception & Organisation**
-**(Ensemble, 1 à 2 jours)**
 - Choix de l’architecture (client-serveur REST).
 - Répartition claire des tâches.
 - Choix de la stack web : Flask (backend) + HTML/CSS/JS ou framework léger comme Bootstrap pour l’UI.
@@ -92,7 +77,7 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 ---
 
 #### **Étape 2 – Mise en place des bases de données**
-**Responsable : Personne A & C**
+**Responsables :Ayoub + Ibtissam**
 - 📦 **MongoDB** :
   - Création des collections : `users`, `messages`, `conversations`.
   - Scripts de peuplement/test.
@@ -102,7 +87,7 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 ---
 
 #### **Étape 3 – Développement backend Python (API REST)**
-**Responsable : Personne A**
+**Responsable : Ayoub**
 - Connexion MongoDB avec **PyMongo**, Redis avec **redis-py**.
 - Endpoints :
   - `POST /login` → Enregistrer l’utilisateur dans Redis.
@@ -114,7 +99,7 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 ---
 
 #### **Étape 4 – Interface web**
-**Responsable : Personne B**
+**Responsable : Walid**
 - Page d’accueil + formulaire de connexion.
 - Affichage en temps réel (ou via rafraîchissement) des messages.
 - Visualisation des utilisateurs connectés.
@@ -123,7 +108,7 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 ---
 
 #### **Étape 5 – Mise en place ReplicaSet MongoDB**
-**Responsable : Personne C**
+**Responsable : Ibtissam**
 - Déploiement local avec 3 instances MongoDB (peut être simulé en local via ports différents).
 - Tests de tolérance aux pannes (arrêt d’un nœud, vérification du failover).
 - Screenshots et explications pour le rapport.
@@ -131,7 +116,7 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 ---
 
 #### **Étape 6 – Tests unitaires et scénarios**
-**Responsable : Personne A & C**
+**Responsable : Ayoub + Ibtissam**
 - Tests pour chaque endpoint de l’API.
 - Cas d’usage :
   - Connexion multiple.
@@ -142,7 +127,7 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 ---
 
 #### **Étape 7 – Rapport final**
-**Responsable : Tous**
+**Responsable : Walid + Ayoub + Ibtissam**
 - Structure du rapport :
   1. Introduction & Contexte
   2. Architecture générale
@@ -154,12 +139,4 @@ Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape
 
 ---
 
-### 📌 Fonctionnalités à ne pas oublier
-- [x] Affichage utilisateurs connectés (Redis)
-- [x] Sauvegarde messages (MongoDB)
-- [x] Conversation entre deux utilisateurs
-- [x] Statistiques utilisateurs
-- [x] Résilience via ReplicaSet
-
----
 
