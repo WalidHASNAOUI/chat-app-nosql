@@ -17,7 +17,13 @@ Créer une application de **tchat web** :
 
 ---
 
-### Structure de projet
+Parfait ! Voici une **structure de fichiers claire et modulaire** pour ton projet de tchat avec **MongoDB**, **Redis**, **FastAPI ou Flask** pour l'API backend, et une **interface web simple**. Je vais te proposer une version avec `FastAPI` (plus moderne), mais tu peux facilement adapter si tu préfères `Flask`.
+
+---
+
+### 📁 Structure de projet
+
+```bash
 chat-app/
 ├── backend/
 │   ├── app/
@@ -60,6 +66,21 @@ chat-app/
 ├── README.md
 └── rapport/
     └── MiniProjet_INFO834.pdf   # Rapport final
+```
+
+---
+
+
+---
+
+### 🚀 Prochaine étape
+
+Souhaites-tu que je t’aide à :
+- générer un `docker-compose.yml` pour tout lancer en local ?
+- te faire un squelette de `main.py` avec les routes de base ?
+- créer un design simple pour l’interface web ?
+
+Tu peux avancer progressivement, je suis là pour t'accompagner à chaque étape 😉
 
 ---
 
