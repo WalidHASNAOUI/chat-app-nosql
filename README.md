@@ -9,8 +9,8 @@ Créer une application de **tchat web** :
 ---
 
 ### 👥 Répartition du travail (proposition initiale)
-| Membre | Rôle principal | Contribution approximative |
-|--------|----------------|-----------------------------|
+| Membre | Rôle principal | 
+|--------|----------------|
 | Personne A | Backend Python (API REST + MongoDB/Redis) | 
 | Personne B | Frontend Web (HTML/CSS/JS + intégration API) | 
 | Personne C | Déploiement ReplicaSet + tests + rapport final | 
