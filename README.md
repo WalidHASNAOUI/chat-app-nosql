@@ -1,9 +1,5 @@
 ## 📝 Projet INFO834 – Application de Tchat (FastAPI + MongoDB + Redis)
 
-Merci pour le fichier ! Voici un **plan détaillé de projet** pour ton mini-projet INFO834 en BD NoSQL avec MongoDB, Redis et interface web, réparti pour **3 personnes** :
-
----
-
 ### 🔧 **Objectif général**
 Créer une application de **tchat web** :
 - Backend en Python avec **MongoDB** (messages/conversations) et **Redis** (utilisateurs connectés).
