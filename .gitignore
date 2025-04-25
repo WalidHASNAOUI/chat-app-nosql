@@ -1,0 +1,6 @@
+node_modules/
+
+# Ignore MongoDB data build output
+docker/mongo/data1/
+docker/mongo/data2/
+docker/mongo/data3/

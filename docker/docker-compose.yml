@@ -1,0 +1,39 @@
+# version: '3.8'
+
+services:
+  mongo1:
+      image: mongo:6.0
+      container_name: mongo1
+      ports:
+        - 27017:27017
+      volumes:
+        - ./init-replica.sh:/init-replica.sh
+      command: ["bash", "/init-replica.sh"]
+      networks:
+        - chatnet
+
+  mongo2:
+    image: mongo:6.0
+    container_name: mongo2
+    command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - chatnet
+
+  mongo3:
+    image: mongo:6.0
+    container_name: mongo3
+    command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - chatnet
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - chatnet
+
+networks:
+  chatnet:
+    driver: bridge
