@@ -105,10 +105,35 @@ if (window.location.pathname.endsWith('chat.html')) {
   // Charge la conversation avec le pair sélectionné
   async function loadConversation() {
     if (!currentPeer) return;
+  
+    const token = localStorage.getItem(tokenKey);
     const res = await fetch(`${API}/conversation/${currentPeer}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     });
+  
+    if (res.status === 401) {
+      // token expiré ou invalide
+      alert('Session expirée, reconnecte-toi.');
+      localStorage.clear();
+      window.location.href = 'login.html';
+      return;
+    }
+    if (!res.ok) {
+      console.error('Erreur HTTP inattendue', res.status);
+      return;
+    }
+  
     const msgs = await res.json();
+    if (!Array.isArray(msgs)) {
+      console.error('Attendu un tableau de messages, reçu :', msgs);
+      return;
+    }
+  
     const container = document.getElementById('messages');
     container.innerHTML = '';
     msgs.forEach(m => {
@@ -123,6 +148,8 @@ if (window.location.pathname.endsWith('chat.html')) {
     });
     container.scrollTop = container.scrollHeight;
   }
+  
+  
 
   // Gestion du formulaire d’envoi
   document.getElementById('msgForm').addEventListener('submit', e => {

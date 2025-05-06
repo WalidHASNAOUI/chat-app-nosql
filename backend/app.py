@@ -87,7 +87,7 @@ def login():
 
     token = jwt.encode({
         'username': username,
-        'exp': datetime.utcnow().timestamp() + 3600  # Token valide 1h
+        'exp': datetime.utcnow().timestamp() + 86400  # Token valide 1h
     }, SECRET_KEY, algorithm="HS256")
 
     redis_client.set(username, datetime.utcnow().isoformat())
