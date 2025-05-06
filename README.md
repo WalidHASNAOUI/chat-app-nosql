@@ -78,57 +78,57 @@ export JWT_SECRET="your-strong-secret"
 
 4. Démarrez MongoDB en mode ReplicaSet
     
-  ```bash
-  mkdir -p ~/data/mongo
-  mongod --dbpath ~/data/mongo --port 27017 --replSet rs0
-  ```
+    ```bash
+    mkdir -p ~/data/mongo
+    mongod --dbpath ~/data/mongo --port 27017 --replSet rs0
+    ```
 
 5. Initialisez le ReplicaSet
  
-  ```bash
-  mongosh --eval "rs.initiate()"
-  ```
+    ```bash
+    mongosh --eval "rs.initiate()"
+    ```
 
 6. Démarrez Redis
-  ```bash 
-  redis-server
-  ```
+    ```bash 
+    redis-server
+    ```
 
 7. Exportez la variable d’environnement pour JWT
-  ```bash
-  export JWT_SECRET="your-strong-secret"
-  ```
+    ```bash
+    export JWT_SECRET="your-strong-secret"
+    ```
 
 8. Lancez l’application Flask
-  ```bash
-  python app.py
-  ```
+    ```bash
+    python app.py
+    ```
 
 ---
 
 ## Frontend Setup
 
 1. Navigate to the frontend folder
-  ```bash 
-  cd chat-app/frontend
-  ```
+    ```bash 
+    cd chat-app/frontend
+    ```
 
 2. Serve static files
 
 - Option A: Python HTTP server : 
-  ```bash 
-  python3 -m http.server 8000
-  ```
+    ```bash 
+    python3 -m http.server 8000
+    ```
 - Option B: Live Server (npm) : 
-  ```bash 
-  npm install -g live-server
-  live-server --port=8000
-  ```
+    ```bash 
+    npm install -g live-server
+    live-server --port=8000
+    ```
 
 3. Open the app in you browser 
-  ```bash
-  http://localhost:8000/login.html
-  ```
+    ```bash
+    http://localhost:8000/login.html
+    ```
 ---
 
 ## Usage
@@ -147,28 +147,28 @@ export JWT_SECRET="your-strong-secret"
     - Ensure mongod is running with --replSet rs0.
 
     - Verify with:
-      ```bash
-      mongosh --eval "rs.status()"
-      ```
+        ```bash
+        mongosh --eval "rs.status()"
+        ```
 
 - CORS issues:
 
     - Make sure Flask-CORS is configured to allow the Authorization header.
 
     - In `app.py`:
-      ```bash
-      CORS(app, resources={r"/*": {"origins": "*"}}, allow_headers=["Content-Type","Authorization"])
-      ```
+        ```bash
+        CORS(app, resources={r"/*": {"origins": "*"}}, allow_headers=["Content-Type","Authorization"])
+        ```
 
 - Expired tokens:
 
     - Tokens expire after 1 hour by default.
 
     - Clear localStorage and re-login if you get 401 errors:
-      ```bash
-      localStorage.clear();
-      window.location.href = 'login.html';
-      ```
+        ```bash
+        localStorage.clear();
+        window.location.href = 'login.html';
+        ```
 ---
 
 ## License 
