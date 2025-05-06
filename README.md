@@ -73,8 +73,8 @@ export JWT_SECRET="your-strong-secret"
 3. Installez les dépendances
    
     ```bash
-  pip install -r requirements.txt
-   ```
+    pip install -r requirements.txt
+    ```
 
 4. Démarrez MongoDB en mode ReplicaSet
     
