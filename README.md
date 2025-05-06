@@ -13,7 +13,7 @@ Créer une application de **tchat web** :
 |--------|----------------|
 | Ayoub | Backend Python (API REST + MongoDB/Redis) | 
 | Walid | Frontend Web (HTML/CSS/JS + intégration API) | 
-| Ibtissam | Déploiement ReplicaSet + tests + rapport final | 
+| Ibtissam | Déploiement + tests + rapport final | 
 
 ---
 
