@@ -1,5 +1,4 @@
-fastapi
-uvicorn
+flask
+flask-cors
 pymongo
 redis
-python-dotenv
