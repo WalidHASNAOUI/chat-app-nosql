@@ -16,7 +16,7 @@ CORS(app)
 SECRET_KEY = os.getenv('JWT_SECRET', 'dev-secret-key')
 
 # Connexion MongoDB
-mongo_client = MongoClient("mongodb://mongo:27017/?replicaSet=rs0", serverSelectionTimeoutMS=5000)
+mongo_client = MongoClient("mongodb://localhost:27017/?replicaSet=rs0", serverSelectionTimeoutMS=5000)
 try:
     repl_status = mongo_client.admin.command("replSetGetStatus")
     print("✅ ReplicaSet status:", repl_status["myState"])
@@ -28,7 +28,7 @@ messages_collection = db["messages"]
 users_collection = db["users"]
 
 # Connexion Redis
-redis_client = redis.Redis(host='redis', port=6379, db=0)
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 # Décorateur pour vérifier le token
 def token_required(f):

@@ -2,24 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Connexion - Chat App</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Chat App</title>
+  <!-- Redirige automatiquement vers la page de login -->
+  <meta http-equiv="refresh" content="0; url=login.html" />
 </head>
 <body>
-  <div class="container">
-    <h2>Connexion</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Nom d'utilisateur" required />
-      <button type="submit">Entrer</button>
-    </form>
-  </div>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      localStorage.setItem('username', username);
-      window.location.href = 'chat.html';
-    });
-  </script>
+  <!-- Rien à afficher : redirection instantanée -->
 </body>
 </html>
