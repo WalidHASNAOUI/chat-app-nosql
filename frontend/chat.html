@@ -10,6 +10,22 @@
     <aside class="sidebar">
       <h3>En ligne</h3>
       <ul id="usersList"></ul>
+
+      <button id="showStatsBtn">Voir stats</button>
+
+      <!-- Stats panel, hidden by default -->
+      <div id="statsPanel" class="stats-panel" style="display: none;">
+        <h4>📊 Statistiques</h4>
+        <div>
+          <strong>Plus actif :</strong>
+          <span id="mostActiveSender">–</span> (<span id="messagesSent">0</span> messages)
+        </div>
+        <div>
+          <strong>Plus sollicité :</strong>
+          <span id="mostRequestedUser">–</span> (<span id="messagesReceived">0</span> reçus)
+        </div>
+      </div>
+
       <button id="logoutBtn">Se déconnecter</button>
     </aside>
     <main class="chat-main">
