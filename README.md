@@ -80,13 +80,16 @@ export JWT_SECRET="your-strong-secret"
     
     ```bash
     mkdir -p ~/data/mongo
+    sudo rm /tmp/mongodb-27017.sock         # remove stale socket if present
+    sudo chmod 1777 /tmp                    # ensure /tmp has correct permissions
     mongod --dbpath ~/data/mongo --port 27017 --replSet rs0
     ```
 
-5. Initialisez le ReplicaSet
+5. Initialisez le ReplicaSet / Verifiez son status
  
     ```bash
     mongosh --eval "rs.initiate()"
+    mongosh --eval "rs.status()"
     ```
 
 6. Démarrez Redis

@@ -30,6 +30,8 @@ users_collection = db["users"]
 # Connexion Redis
 redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
+
+
 # Décorateur pour vérifier le token
 def token_required(f):
     @wraps(f)
@@ -147,8 +149,14 @@ def get_conversation(current_user, user2):
 
 @app.route('/connected-users', methods=['GET'])
 def get_connected_users():
+    # On récupère toutes les clés Redis...
     keys = redis_client.keys('*')
-    users = [key.decode('utf-8') for key in keys]
+    users = []
+    for raw in keys:
+        key = raw.decode('utf-8')
+        # ...et on filtre celles qui ne commencent pas par "typing:"
+        if not key.startswith('typing:'):
+            users.append(key)
     return jsonify(users)
 
 @app.route('/stats', methods=['GET'])
@@ -170,6 +178,29 @@ def get_stats():
             "messages_received": most_requested_user[1]
         }
     })
+    
+@app.route('/typing', methods=['POST'])
+@token_required
+def typing(current_user):
+    data = request.get_json()
+    receiver = data.get('receiver')
+    if not receiver:
+        return jsonify({"error": "Receiver is required"}), 400
+
+    # clé Redis : typing:<sender>:<receiver>
+    key = f"typing:{current_user}:{receiver}"
+    # on stocke une valeur (true) qui expire en 5s
+    redis_client.setex(key, 5, '1')
+    return jsonify({"status": "typing recorded"}), 200
+
+# Vérifier si <peer> est en train d'écrire pour nous
+@app.route('/typing/<peer>', methods=['GET'])
+@token_required
+def is_typing(current_user, peer):
+    # on lit la clé inverse : typing:<peer>:<current_user>
+    key = f"typing:{peer}:{current_user}"
+    is_typing = redis_client.exists(key) == 1
+    return jsonify({"typing": is_typing}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

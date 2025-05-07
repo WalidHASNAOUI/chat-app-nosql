@@ -116,3 +116,39 @@ body {
   color: #fff;
   cursor: pointer;
 }
+
+
+/* Container de l’indicateur, déjà en place */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 1rem;
+  margin: 0.5rem 1rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  width: fit-content;
+}
+
+/* Trois petits points animés : on force inline-block */
+.typing-dot {
+  display: inline-block;       /* <-- important */
+  width: 0.6rem;               /* un peu plus gros */
+  height: 0.6rem;
+  background: #555;            /* plus foncé pour bien voir */
+  border-radius: 50%;
+  margin-right: 0.4rem;
+  opacity: 0.3;
+  animation: blink 1s infinite ease-in-out;
+}
+
+/* Décalage de l’animation pour chaque point */
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Animation de clignotement */
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(1); }
+  40%           { opacity: 1;   transform: scale(1.3); }
+}
+

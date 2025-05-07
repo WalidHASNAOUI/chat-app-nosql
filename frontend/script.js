@@ -59,8 +59,32 @@ if (window.location.pathname.endsWith('chat.html')) {
 
   let currentPeer = null;
 
+  let typingTimer;
+
+  document.getElementById('msgInput').addEventListener('input', () => {
+    clearTimeout(typingTimer);
+    // envoie immédiatement le signal “typing”
+    fetch(`${API}/typing`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ receiver: currentPeer })
+    });
+    // on arrête d'envoyer après 3s sans nouvelle saisie
+    typingTimer = setTimeout(() => {}, 3000);
+  });
+
+
   // Déconnexion
   document.getElementById('logoutBtn').addEventListener('click', async () => {
+    // Arrête le polling
+    clearInterval(typingInterval);
+    // Arrête le timeout de saisie
+    clearTimeout(typingTimer);
+    
     await fetch(`${API}/logout`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -80,10 +104,15 @@ if (window.location.pathname.endsWith('chat.html')) {
       const li = document.createElement('li');
       li.textContent = u;
       li.onclick = () => {
+        // Arrête le polling précédent si existant
+        clearInterval(typingInterval);
         currentPeer = u;
+        console.log('Selected peer =', currentPeer);
         document.querySelectorAll('.sidebar li').forEach(el => el.classList.remove('active'));
         li.classList.add('active');
         loadConversation();
+        console.log('startTypingIndicatorPoll called for', currentPeer);
+        startTypingIndicatorPoll();  // démarre le polling
       };
       ul.appendChild(li);
     });
@@ -134,8 +163,8 @@ if (window.location.pathname.endsWith('chat.html')) {
       return;
     }
   
-    const container = document.getElementById('messages');
-    container.innerHTML = '';
+    const list = document.getElementById('messagesList');
+    list.innerHTML = '';
     msgs.forEach(m => {
       const div = document.createElement('div');
       div.classList.add('msg');
@@ -144,12 +173,47 @@ if (window.location.pathname.endsWith('chat.html')) {
         <div class="meta"><strong>${m.sender}</strong> <em>${time}</em></div>
         <div class="text">${m.message}</div>
       `;
-      container.appendChild(div);
+      list.appendChild(div);
     });
+
+    const container = document.getElementById('messages');
     container.scrollTop = container.scrollHeight;
+
   }
   
-  
+  let typingInterval;
+
+  function startTypingIndicatorPoll() {
+    clearInterval(typingInterval);
+    console.log('startTypingIndicatorPoll, currentPeer =', currentPeer);
+
+    const indicator = document.getElementById('typingIndicator');
+
+    if (!indicator) {
+      console.error('typingIndicator introuvable dans le DOM');
+      return;
+    }
+
+    typingInterval = setInterval(async () => {
+      console.log('polling /typing/' + currentPeer);
+      const res = await fetch(`${API}/typing/${currentPeer}`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+
+      const { typing } = await res.json();
+      console.log('  peer typing?', typing);
+      indicator.style.display = typing ? 'flex' : 'none';
+
+       // Auto-scroll pour garder l’indicateur visible
+      if (typing) {
+        const container = document.getElementById('messages');
+        container.scrollTop = container.scrollHeight;
+      }
+    }, 1000);
+  }
 
   // Gestion du formulaire d’envoi
   document.getElementById('msgForm').addEventListener('submit', e => {

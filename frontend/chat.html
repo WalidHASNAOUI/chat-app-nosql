@@ -16,7 +16,16 @@
       <header>
         <h2>Chat — <span id="me"></span></h2>
       </header>
-      <div id="messages" class="messages"></div>
+      <div id="messages" class="messages">
+        <div id="messagesList"></div>
+          
+        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+
       <form id="msgForm" class="msg-form">
         <input type="text" id="msgInput" placeholder="Votre message..." autocomplete="off" required />
         <button type="submit">✉️</button>
