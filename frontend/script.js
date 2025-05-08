@@ -227,6 +227,39 @@ if (window.location.pathname.endsWith('chat.html')) {
     });
   });
 
+  // 1) Hook the button
+document.getElementById('showStatsBtn').addEventListener('click', async () => {
+  const panel = document.getElementById('statsPanel');
+  // toggle visibility
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') {
+    await loadStats();
+  }
+});
+
+// 2) Fetch and render stats
+async function loadStats() {
+  const res = await fetch(`${API}/stats`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    console.error('Cannot load stats', res.status);
+    return;
+  }
+  const { most_active_sender, most_requested_user } = await res.json();
+
+  document.getElementById('mostActiveSender').innerText =
+    most_active_sender.username;
+  document.getElementById('messagesSent').innerText =
+    most_active_sender.messages_sent;
+
+  document.getElementById('mostRequestedUser').innerText =
+    most_requested_user.username;
+  document.getElementById('messagesReceived').innerText =
+    most_requested_user.messages_received;
+}
+
+
   // Initialisation + rafraîchissements
   fetchUsers();
   setInterval(fetchUsers, 5000);
