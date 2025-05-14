@@ -102,7 +102,13 @@ if (window.location.pathname.endsWith('chat.html')) {
     ul.innerHTML = '';
     users.filter(u => u !== me).forEach(u => {
       const li = document.createElement('li');
-      li.textContent = u;
+      // build a user item with avatar + name
+      li.innerHTML = `
+        <div class="user-item">
+          <span class="avatar">${u.charAt(0).toUpperCase()}</span>
+          <span class="username">${u}</span>
+        </div>
+      `;
       li.onclick = () => {
         // Arrête le polling précédent si existant
         clearInterval(typingInterval);
@@ -168,13 +174,20 @@ if (window.location.pathname.endsWith('chat.html')) {
     msgs.forEach(m => {
       const div = document.createElement('div');
       div.classList.add('msg');
-      const time = new Date(m.timestamp).toLocaleTimeString();
+      // Add a class based on who sent it
+      div.classList.add(m.sender === me ? 'outgoing' : 'incoming');
+    
+      const time = new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       div.innerHTML = `
-        <div class="meta"><strong>${m.sender}</strong> <em>${time}</em></div>
-        <div class="text">${m.message}</div>
+        <div class="bubble">
+          <div class="text">${m.message}</div>
+          <div class="time">${time}</div>
+        </div>
       `;
       list.appendChild(div);
     });
+    
+    
 
     const container = document.getElementById('messages');
     container.scrollTop = container.scrollHeight;

@@ -168,3 +168,181 @@ body {
 .stats-panel div {
   margin: 0.5rem 0;
 }
+
+/* 1) Base bubble styling */
+.msg {
+  display: flex;
+  margin: 0.5rem 1rem;
+}
+.bubble {
+  position: relative;
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+.bubble .text {
+  margin-bottom: 0.5rem;
+}
+.bubble .time {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: right;
+}
+
+/* 2) Outgoing (me) vs. Incoming (peer) */
+.msg.outgoing {
+  justify-content: flex-end;
+}
+.msg.outgoing .bubble {
+  background: #dcf8c6;
+  border-bottom-right-radius: 0.25rem;
+}
+.msg.incoming {
+  justify-content: flex-start;
+}
+.msg.incoming .bubble {
+  background: #fff;
+  border-bottom-left-radius: 0.25rem;
+}
+
+/* 3) Bubble “tail” triangles */
+.msg.outgoing .bubble::after {
+  content: '';
+  position: absolute;
+  right: -8px; bottom: 0;
+  border-width: 8px 0 0 8px;
+  border-style: solid;
+  border-color: #dcf8c6 transparent;
+}
+.msg.incoming .bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px; bottom: 0;
+  border-width: 8px 8px 0 0;
+  border-style: solid;
+  border-color: #fff transparent;
+}
+
+/* 4) Hover effect and smooth scroll */
+.bubble:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+#messages {
+  scroll-behavior: smooth;
+}
+
+/* ---- Users list styling ---- */
+
+.sidebar ul#usersList {
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul#usersList li {
+  list-style: none;
+  margin: 0.5rem 0;
+}
+
+.sidebar ul#usersList li .user-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar ul#usersList li .user-item .avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #0b93f6;
+  color: #fff;
+  border-radius: 50%;
+  font-weight: bold;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.sidebar ul#usersList li .user-item .username {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Hover and active states */
+.sidebar ul#usersList li:hover .user-item,
+.sidebar ul#usersList li.active .user-item {
+  background: #e4e6eb;
+}
+
+/* Indicate selected user */
+.sidebar ul#usersList li.active .avatar {
+  background: #0a7cd5;
+}
+
+/* ===== Professional message form ===== */
+
+.msg-form {
+  width: 100%;               /* full width of its container */
+  padding: 0.5rem 1rem;
+  background: #fff;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.05);
+  box-sizing: border-box;    /* include padding in width */
+}
+
+.input-wrapper {
+  width: 100%;               /* make it fill the form */
+  display: flex;
+  align-items: center;
+  background: #f0f2f5;
+  border-radius: 999px;
+  padding: 0.25rem;
+}
+
+.input-wrapper input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 999px;
+  outline: none;
+}
+
+.input-wrapper input::placeholder {
+  color: #999;
+}
+
+.send-btn {
+  background: #0b93f6;
+  border: none;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  color: #fff;
+  margin-right: 0;           /* remove extra space */
+  margin-left: 0.5rem;       /* small gap from input */
+}
+
+.send-btn svg {
+  display: block;
+}
+
+.send-btn:hover {
+  background: #0882d6;
+}
+
+.send-btn:active {
+  transform: scale(0.95);
+}

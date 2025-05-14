@@ -43,9 +43,23 @@
       </div>
 
       <form id="msgForm" class="msg-form">
-        <input type="text" id="msgInput" placeholder="Votre message..." autocomplete="off" required />
-        <button type="submit">✉️</button>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="msgInput"
+            placeholder="Écris un message…"
+            autocomplete="off"
+            required
+          />
+          <button type="submit" aria-label="Envoyer" class="send-btn">
+            <!-- Simple “paper plane” SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+            </svg>
+          </button>
+        </div>
       </form>
+      
     </main>
   </div>
   <script src="script.js"></script>
