@@ -1,7 +1,7 @@
 const API = 'http://localhost:5000';
 const tokenKey = 'chatToken';
 
-// Redirection si non-authentifié
+// Redirect if not authenticated
 function ensureAuth() {
   if (!localStorage.getItem(tokenKey)) {
     window.location.href = 'login.html';
@@ -58,33 +58,54 @@ if (window.location.pathname.endsWith('chat.html')) {
   document.getElementById('me').innerText = me;
 
   let currentPeer = null;
-
   let typingTimer;
+  let typingInterval;
 
-  document.getElementById('msgInput').addEventListener('input', () => {
-    clearTimeout(typingTimer);
-    // envoie immédiatement le signal “typing”
-    fetch(`${API}/typing`, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type':'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ receiver: currentPeer })
+  // Broadcast button
+  const broadcastBtn = document.getElementById('broadcastBtn');
+  if (broadcastBtn) {
+    broadcastBtn.addEventListener('click', async () => {
+      const message = prompt('Entrez le message à diffuser :');
+      if (!message) return;
+      try {
+        const res = await fetch(`${API}/broadcast`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ message })
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || 'Échec de la diffusion');
+        alert(`Diffusé à ${body.broadcast_to} utilisateurs !`);
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+      }
     });
-    // on arrête d'envoyer après 3s sans nouvelle saisie
-    typingTimer = setTimeout(() => {}, 3000);
-  });
+  }
 
+  // Typing indicator (on input)
+  const msgInput = document.getElementById('msgInput');
+  if (msgInput) {
+    msgInput.addEventListener('input', () => {
+      clearTimeout(typingTimer);
+      fetch(`${API}/typing`, {
+        method: 'POST',
+        headers: {
+          'Content-Type':'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ receiver: currentPeer })
+      });
+      typingTimer = setTimeout(() => {}, 3000);
+    });
+  }
 
-  // Déconnexion
+  // Logout
   document.getElementById('logoutBtn').addEventListener('click', async () => {
-    // Arrête le polling
     clearInterval(typingInterval);
-    // Arrête le timeout de saisie
     clearTimeout(typingTimer);
-    
     await fetch(`${API}/logout`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -94,7 +115,7 @@ if (window.location.pathname.endsWith('chat.html')) {
     window.location.href = 'login.html';
   });
 
-  // Récupère la liste des utilisateurs connectés
+  // Fetch connected users
   async function fetchUsers() {
     const res = await fetch(`${API}/connected-users`);
     const users = await res.json();
@@ -104,21 +125,18 @@ if (window.location.pathname.endsWith('chat.html')) {
       const li = document.createElement('li');
       li.textContent = u;
       li.onclick = () => {
-        // Arrête le polling précédent si existant
         clearInterval(typingInterval);
         currentPeer = u;
-        console.log('Selected peer =', currentPeer);
         document.querySelectorAll('.sidebar li').forEach(el => el.classList.remove('active'));
         li.classList.add('active');
         loadConversation();
-        console.log('startTypingIndicatorPoll called for', currentPeer);
-        startTypingIndicatorPoll();  // démarre le polling
+        startTypingIndicatorPoll();
       };
       ul.appendChild(li);
     });
   }
 
-  // Envoie un message
+  // Send a message
   async function sendMessage(text) {
     if (!currentPeer) return alert('Sélectionne un destinataire.');
     await fetch(`${API}/send`, {
@@ -131,38 +149,21 @@ if (window.location.pathname.endsWith('chat.html')) {
     });
   }
 
-  // Charge la conversation avec le pair sélectionné
+  // Load conversation history
   async function loadConversation() {
     if (!currentPeer) return;
-  
-    const token = localStorage.getItem(tokenKey);
     const res = await fetch(`${API}/conversation/${currentPeer}`, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
+      headers: { 
+        'Content-Type':'application/json',
         'Authorization': `Bearer ${token}`
       }
     });
-  
     if (res.status === 401) {
-      // token expiré ou invalide
       alert('Session expirée, reconnecte-toi.');
       localStorage.clear();
-      window.location.href = 'login.html';
-      return;
+      return window.location.href = 'login.html';
     }
-    if (!res.ok) {
-      console.error('Erreur HTTP inattendue', res.status);
-      return;
-    }
-  
     const msgs = await res.json();
-    if (!Array.isArray(msgs)) {
-      console.error('Attendu un tableau de messages, reçu :', msgs);
-      return;
-    }
-  
     const list = document.getElementById('messagesList');
     list.innerHTML = '';
     msgs.forEach(m => {
@@ -175,39 +176,21 @@ if (window.location.pathname.endsWith('chat.html')) {
       `;
       list.appendChild(div);
     });
-
     const container = document.getElementById('messages');
     container.scrollTop = container.scrollHeight;
-
   }
-  
-  let typingInterval;
 
+  // Poll for typing indicator
   function startTypingIndicatorPoll() {
     clearInterval(typingInterval);
-    console.log('startTypingIndicatorPoll, currentPeer =', currentPeer);
-
     const indicator = document.getElementById('typingIndicator');
-
-    if (!indicator) {
-      console.error('typingIndicator introuvable dans le DOM');
-      return;
-    }
-
     typingInterval = setInterval(async () => {
-      console.log('polling /typing/' + currentPeer);
       const res = await fetch(`${API}/typing/${currentPeer}`, {
-        method: 'GET',
-        mode: 'cors',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) return;
-
       const { typing } = await res.json();
-      console.log('  peer typing?', typing);
       indicator.style.display = typing ? 'flex' : 'none';
-
-       // Auto-scroll pour garder l’indicateur visible
       if (typing) {
         const container = document.getElementById('messages');
         container.scrollTop = container.scrollHeight;
@@ -215,7 +198,7 @@ if (window.location.pathname.endsWith('chat.html')) {
     }, 1000);
   }
 
-  // Gestion du formulaire d’envoi
+  // Message form handler
   document.getElementById('msgForm').addEventListener('submit', e => {
     e.preventDefault();
     const input = document.getElementById('msgInput');
@@ -227,40 +210,29 @@ if (window.location.pathname.endsWith('chat.html')) {
     });
   });
 
-  // 1) Hook the button
-document.getElementById('showStatsBtn').addEventListener('click', async () => {
-  const panel = document.getElementById('statsPanel');
-  // toggle visibility
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-  if (panel.style.display === 'block') {
-    await loadStats();
-  }
-});
-
-// 2) Fetch and render stats
-async function loadStats() {
-  const res = await fetch(`${API}/stats`, {
-    headers: { 'Authorization': `Bearer ${token}` }
+  // Stats button
+  document.getElementById('showStatsBtn').addEventListener('click', async () => {
+    const panel = document.getElementById('statsPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    if (panel.style.display === 'block') {
+      await loadStats();
+    }
   });
-  if (!res.ok) {
-    console.error('Cannot load stats', res.status);
-    return;
+
+  // Load stats
+  async function loadStats() {
+    const res = await fetch(`${API}/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) return console.error('Cannot load stats', res.status);
+    const { most_active_sender, most_requested_user } = await res.json();
+    document.getElementById('mostActiveSender').innerText = most_active_sender.username;
+    document.getElementById('messagesSent').innerText = most_active_sender.messages_sent;
+    document.getElementById('mostRequestedUser').innerText = most_requested_user.username;
+    document.getElementById('messagesReceived').innerText = most_requested_user.messages_received;
   }
-  const { most_active_sender, most_requested_user } = await res.json();
 
-  document.getElementById('mostActiveSender').innerText =
-    most_active_sender.username;
-  document.getElementById('messagesSent').innerText =
-    most_active_sender.messages_sent;
-
-  document.getElementById('mostRequestedUser').innerText =
-    most_requested_user.username;
-  document.getElementById('messagesReceived').innerText =
-    most_requested_user.messages_received;
-}
-
-
-  // Initialisation + rafraîchissements
+  // Initial load + polling
   fetchUsers();
   setInterval(fetchUsers, 5000);
   setInterval(() => { if (currentPeer) loadConversation(); }, 3000);

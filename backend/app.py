@@ -149,15 +149,17 @@ def get_conversation(current_user, user2):
 
 @app.route('/connected-users', methods=['GET'])
 def get_connected_users():
-    # On récupère toutes les clés Redis...
+    # Récupère toutes les clés stockées en Redis
     keys = redis_client.keys('*')
     users = []
     for raw in keys:
         key = raw.decode('utf-8')
-        # ...et on filtre celles qui ne commencent pas par "typing:"
-        if not key.startswith('typing:'):
-            users.append(key)
+        # Ignore both typing-indicators and chat-history lists
+        if key.startswith('typing:') or key.startswith('history:'):
+            continue
+        users.append(key)
     return jsonify(users)
+
 
 @app.route('/stats', methods=['GET'])
 def get_stats():
@@ -204,3 +206,40 @@ def is_typing(current_user, peer):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
+
+@app.route('/broadcast', methods=['POST'])
+@token_required
+def broadcast(current_user):
+    data = request.get_json()
+    message = data.get('message')
+    if not message:
+        return jsonify({'error': 'Message is required'}), 400
+
+    # Fetch all usernames in the system
+    all_users = [u['username'] for u in users_collection.find()]
+    sent_count = 0
+
+    for receiver in all_users:
+        if receiver == current_user:
+            continue
+        # Save to MongoDB chat history
+        messages_collection.insert_one({
+            "sender":   current_user,
+            "receiver": receiver,
+            "message":  message,
+            "timestamp": datetime.utcnow()
+        })
+        # (Optional) push into Redis list for quick-access history
+        redis_client.rpush(
+            f"history:{current_user}:{receiver}",
+            message
+        )
+        sent_count += 1
+
+    # Update sender’s “last active” in Redis
+    redis_client.set(current_user, datetime.utcnow().isoformat())
+
+    return jsonify({
+        'status': 'Broadcast sent',
+        'broadcast_to': sent_count
+    }), 201
