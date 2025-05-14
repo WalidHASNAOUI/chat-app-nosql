@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 import redis
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import Counter
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -16,21 +16,29 @@ CORS(app)
 SECRET_KEY = os.getenv('JWT_SECRET', 'dev-secret-key')
 
 # Connexion MongoDB
-mongo_client = MongoClient("mongodb://localhost:27017/?replicaSet=rs0", serverSelectionTimeoutMS=5000)
+mongo_client = MongoClient(
+    "mongodb://localhost:27017/?replicaSet=rs0",
+    serverSelectionTimeoutMS=5000
+)
 try:
     repl_status = mongo_client.admin.command("replSetGetStatus")
     print("✅ ReplicaSet status:", repl_status["myState"])
 except Exception as e:
     print("❌ ReplicaSet not available:", e)
 
+# Base et collections
 db = mongo_client["chat_app"]
 messages_collection = db["messages"]
 users_collection = db["users"]
 
+# Ensure unique index to prevent duplicate messages
+messages_collection.create_index(
+    [("sender", 1), ("receiver", 1), ("timestamp", 1)],
+    unique=True
+)
+
 # Connexion Redis
 redis_client = redis.Redis(host='localhost', port=6379, db=0)
-
-
 
 # Décorateur pour vérifier le token
 def token_required(f):
@@ -89,7 +97,7 @@ def login():
 
     token = jwt.encode({
         'username': username,
-        'exp': datetime.utcnow().timestamp() + 86400  # Token valide 1h
+        'exp': datetime.utcnow() + timedelta(hours=24)
     }, SECRET_KEY, algorithm="HS256")
 
     redis_client.set(username, datetime.utcnow().isoformat())
@@ -112,73 +120,58 @@ def send_message(current_user):
     if not receiver or not message:
         return jsonify({"error": "Receiver and message are required"}), 400
 
-    messages_collection.insert_one({
-        "sender": current_user,
-        "receiver": receiver,
-        "message": message,
-        "timestamp": datetime.utcnow()
-    })
+    try:
+        messages_collection.insert_one({
+            "sender": current_user,
+            "receiver": receiver,
+            "message": message,
+            "timestamp": datetime.utcnow()
+        })
+    except errors.DuplicateKeyError:
+        pass  # ignore exact duplicate
 
     redis_client.set(current_user, datetime.utcnow().isoformat())
-
     return jsonify({"status": "Message sent"}), 201
-
-@app.route('/messages', methods=['GET'])
-@token_required
-def get_user_messages(current_user):
-    messages = list(messages_collection.find({
-        "$or": [{"sender": current_user}, {"receiver": current_user}]
-    }))
-    for msg in messages:
-        msg['_id'] = str(msg['_id'])
-    return jsonify(messages)
 
 @app.route('/conversation/<user2>', methods=['GET'])
 @token_required
 def get_conversation(current_user, user2):
-    messages = list(messages_collection.find({
+    msgs = list(messages_collection.find({
         "$or": [
             {"sender": current_user, "receiver": user2},
             {"sender": user2, "receiver": current_user}
         ]
     }).sort("timestamp", 1))
-
-    for msg in messages:
+    for msg in msgs:
         msg['_id'] = str(msg['_id'])
-    return jsonify(messages)
+    return jsonify(msgs)
 
 @app.route('/connected-users', methods=['GET'])
-def get_connected_users():
-    # On récupère toutes les clés Redis...
+@token_required
+def get_connected_users(current_user):
     keys = redis_client.keys('*')
     users = []
     for raw in keys:
         key = raw.decode('utf-8')
-        # ...et on filtre celles qui ne commencent pas par "typing:"
-        if not key.startswith('typing:'):
-            users.append(key)
+        if key.startswith('typing:') or key.startswith('history:'):
+            continue
+        users.append(key)
     return jsonify(users)
 
 @app.route('/stats', methods=['GET'])
 def get_stats():
-    messages = list(messages_collection.find())
-    sender_counts = Counter(msg["sender"] for msg in messages)
-    receiver_counts = Counter(msg["receiver"] for msg in messages)
+    msgs = list(messages_collection.find())
+    sender_counts = Counter(m["sender"] for m in msgs)
+    receiver_counts = Counter(m["receiver"] for m in msgs)
 
-    most_active_sender = sender_counts.most_common(1)[0] if sender_counts else ("N/A", 0)
-    most_requested_user = receiver_counts.most_common(1)[0] if receiver_counts else ("N/A", 0)
+    a = sender_counts.most_common(1)[0] if sender_counts else ("N/A", 0)
+    b = receiver_counts.most_common(1)[0] if receiver_counts else ("N/A", 0)
 
     return jsonify({
-        "most_active_sender": {
-            "username": most_active_sender[0],
-            "messages_sent": most_active_sender[1]
-        },
-        "most_requested_user": {
-            "username": most_requested_user[0],
-            "messages_received": most_requested_user[1]
-        }
+        "most_active_sender": {"username": a[0], "messages_sent": a[1]},
+        "most_requested_user": {"username": b[0], "messages_received": b[1]}
     })
-    
+
 @app.route('/typing', methods=['POST'])
 @token_required
 def typing(current_user):
@@ -187,20 +180,43 @@ def typing(current_user):
     if not receiver:
         return jsonify({"error": "Receiver is required"}), 400
 
-    # clé Redis : typing:<sender>:<receiver>
     key = f"typing:{current_user}:{receiver}"
-    # on stocke une valeur (true) qui expire en 5s
     redis_client.setex(key, 5, '1')
     return jsonify({"status": "typing recorded"}), 200
 
-# Vérifier si <peer> est en train d'écrire pour nous
 @app.route('/typing/<peer>', methods=['GET'])
 @token_required
 def is_typing(current_user, peer):
-    # on lit la clé inverse : typing:<peer>:<current_user>
     key = f"typing:{peer}:{current_user}"
-    is_typing = redis_client.exists(key) == 1
-    return jsonify({"typing": is_typing}), 200
+    return jsonify({"typing": redis_client.exists(key) == 1}), 200
+
+@app.route('/broadcast', methods=['POST'])
+@token_required
+def broadcast(current_user):
+    data = request.get_json()
+    message = data.get('message')
+    if not message:
+        return jsonify({'error': 'Message is required'}), 400
+
+    all_users = [u['username'] for u in users_collection.find()]
+    sent = 0
+    for recv in all_users:
+        if recv == current_user:
+            continue
+        try:
+            messages_collection.insert_one({
+                "sender": current_user,
+                "receiver": recv,
+                "message": message,
+                "timestamp": datetime.utcnow()
+            })
+        except errors.DuplicateKeyError:
+            continue
+        redis_client.rpush(f"history:{current_user}:{recv}", message)
+        sent += 1
+
+    redis_client.set(current_user, datetime.utcnow().isoformat())
+    return jsonify({'status': 'Broadcast sent', 'broadcast_to': sent}), 201
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
